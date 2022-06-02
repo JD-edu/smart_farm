@@ -160,12 +160,7 @@ void loop() {
     } 
 
   }
-  //cool++;
-  //if(cool > 10){
-  //  cool = 0;
-  //  SecondSerial.print("c");
-  //  Serial.print("c");
-  //}
+
   if(Serial.available()>0){
     if(Serial.available()){
       inString = Serial.readStringUntil('\n');
