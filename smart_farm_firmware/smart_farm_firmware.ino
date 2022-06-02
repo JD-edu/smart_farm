@@ -9,6 +9,7 @@
 #define SOIL_D0     6
 #define PAN_OUT     9
 #define PUMP_OUT    5
+#define LED_ON      8
 
 const byte rxPin = 3;
 const byte txPin = 7;
@@ -28,6 +29,7 @@ void setup(){
     pinMode(CDS_D0, INPUT);
     pinMode(PAN_OUT, OUTPUT);
     pinMode(PUMP_OUT, OUTPUT);
+    pinMode(LED_ON, OUTPUT);
 
     dht.begin();
     mySerial.begin(38400);
@@ -50,8 +52,38 @@ void loop(){
         }else if(c == 'k'){
             Serial.println("PUMP OFF");
             digitalWrite(PUMP_OUT, LOW);
+        }else if(c == 't'){
+            Serial.println("LED ON");
+            digitalWrite(LED_ON, HIGH);
+        }else if(c == 's'){
+            Serial.println("LED OFF");
+            digitalWrite(LED_ON, LOW);
         }
     }
+
+    if(Serial.available()>0){
+        char c = Serial.read();
+        if (c == 'c'){
+            Serial.println("FAN ON");
+            digitalWrite(PAN_OUT, HIGH);
+        }else if(c == 'f'){
+            Serial.println("FAN OFF");
+            digitalWrite(PAN_OUT, LOW);
+        }else if(c == 'i'){
+            Serial.println("PUMP ON");
+            digitalWrite(PUMP_OUT, HIGH);
+        }else if(c == 'k'){
+            Serial.println("PUMP OFF");
+            digitalWrite(PUMP_OUT, LOW);
+        }else if(c == 't'){
+            Serial.println("LED ON");
+            digitalWrite(LED_ON, HIGH);
+        }else if(c == 's'){
+            Serial.println("LED OFF");
+            digitalWrite(LED_ON, LOW);
+        }
+    }
+
 
     float humid = dht.readHumidity();
     float temp = dht.readTemperature();
@@ -72,6 +104,7 @@ void loop(){
     cool++;
     if(cool > 10){
         String packet = 'a'+ tempStr + 'b' + humidStr + 'c' + cds_a0Str + 'd' +soil_a0Str +'e' ;
+        Serial.println(packet);
         mySerial.println(packet);
     }
     delay(100);
