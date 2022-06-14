@@ -33,9 +33,7 @@ float soil_a0 = 0;
 
 void setup() {
   Serial.begin(115200);
-  
   SecondSerial.begin(38400, SERIAL_8N1, RXD2, TXD2);
-  //Delay for SecondSerial 
   delay(2000);
 
   setup_wifi();
@@ -49,7 +47,6 @@ void setup() {
 
 void setup_wifi() {
   delay(10);
-  // We start by connecting to a WiFi network
   Serial.println();
   Serial.print("Connecting to ");
   Serial.println(ssid);
@@ -110,55 +107,55 @@ void loop() {
   // 'a' + temperature + 'b' + humid + 'c' + CDS A0 + 'd' + Soil A0 + 'e'
   String inString = "";
   if(SecondSerial.available()>0){
-      if(SecondSerial.available()){
+    if(SecondSerial.available()){
 
-        inString = SecondSerial.readStringUntil('\n');
-        Serial.println(inString);
-        // temperature
-        //temperature = (float)random(1, 30);
-        int first = inString.indexOf('a');
-        int second = inString.indexOf('b');
-        String tempStr = inString.substring(first+1, second);
-        temperature = tempStr.toFloat();
-        Serial.println(temperature);
+      inString = SecondSerial.readStringUntil('\n');
+      //Serial.println(inString);
+      // temperature
+      //temperature = (float)random(1, 30);
+      int first = inString.indexOf('a');
+      int second = inString.indexOf('b');
+      String tempStr = inString.substring(first+1, second);
+      temperature = tempStr.toFloat();
+      //Serial.println(temperature);
 
-        // humidity
-        //humidity = (float)random(25, 30);
-        first = inString.indexOf('b');
-        second = inString.indexOf('c');
-        String humidStr = inString.substring(first+1, second);
-        humidity = humidStr.toFloat();
-        Serial.println(humidity);
+      // humidity
+      //humidity = (float)random(25, 30);
+      first = inString.indexOf('b');
+      second = inString.indexOf('c');
+      String humidStr = inString.substring(first+1, second);
+      humidity = humidStr.toFloat();
+      //Serial.println(humidity);
 
-        // CDS analog 
-        first = inString.indexOf('c');
-        second = inString.indexOf('d');
-        String cds_a0Str = inString.substring(first+1, second);
-        cds_a0 = cds_a0Str.toFloat();
-        Serial.println(cds_a0);
+      // CDS analog 
+      first = inString.indexOf('c');
+      second = inString.indexOf('d');
+      String cds_a0Str = inString.substring(first+1, second);
+      cds_a0 = cds_a0Str.toFloat();
+      //Serial.println(cds_a0);
 
-        // soil analog 
-        first = inString.indexOf('d');
-        second = inString.indexOf('e');
-        String soil_a0Str = inString.substring(first+1, second);
-        soil_a0 = soil_a0Str.toFloat();
-        Serial.println(soil_a0);
-        
-        // Convert the value to a char array
-        char tempString[8];
-        char humString[8];
-        //char inStr[30];
-        dtostrf(humidity, 1, 2, humString);
-        dtostrf(temperature, 1, 2, tempString);
-        u8x8.drawString(0,0,humString);
-        u8x8.drawString(0,1,tempString); 
-
-        //sprintf(msg, "{'uuid':'9807', 'temperature': '%s', 'humidity': '%s'%}", tempString, humString);
-        //client.publish("/politek/signal_gather_topic/uuid_9807", msg);
-        //client.publish("esp32/humidity", humString)
-        delay(100);
+      // soil analog 
+      first = inString.indexOf('d');
+      second = inString.indexOf('e');
+      String soil_a0Str = inString.substring(first+1, second);
+      soil_a0 = soil_a0Str.toFloat();
+      //Serial.println(soil_a0);
+      
+      // Convert the value to a char array
+      char tempString[8];
+      char humString[8];
+      char soilString[8];
+      char cdsString[8];
+      dtostrf(humidity, 1, 2, humString);
+      dtostrf(temperature, 1, 2, tempString);
+      dtostrf(soil_a0, 1, 2, soilString);
+      dtostrf(cds_a0, 1, 2, cdsString);
+      u8x8.drawString(0,0,humString);
+      u8x8.drawString(0,1,tempString); 
+      u8x8.drawString(0,2,soilString);
+      u8x8.drawString(0,3,cdsString); 
+      delay(100);
     } 
-
   }
 
   if(Serial.available()>0){
