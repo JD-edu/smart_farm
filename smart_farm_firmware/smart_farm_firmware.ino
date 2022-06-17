@@ -36,6 +36,9 @@ void setup(){
 }
 
 int cool = 0;
+int coolDTH11 = 0;
+float humid;
+float temp;
 void loop(){
     if(mySerial.available()>0){
         char c = mySerial.read();
@@ -84,14 +87,17 @@ void loop(){
         }
     }
 
+    coolDTH11++;
+    if(coolDTH11 > 10){
+        humid = dht.readHumidity();
+        temp = dht.readTemperature();
 
-    float humid = dht.readHumidity();
-    float temp = dht.readTemperature();
-
-    if(isnan(humid) || isnan (temp)){
-        Serial.println("Failed to read DHT");
+        if(isnan(humid) || isnan (temp)){
+            Serial.println("Failed to read DHT");
+        }
+        coolDTH11 = 0;
     }
-
+   
     int cds_a0 = analogRead(CDS_A0);
     int cds_d0 = digitalRead(CDS_D0);
     int soil_a0 = analogRead(SOIL_A0);
@@ -105,7 +111,8 @@ void loop(){
     if(cool > 10){
         String packet = 'a'+ tempStr + 'b' + humidStr + 'c' + cds_a0Str + 'd' +soil_a0Str +'e' ;
         Serial.println(packet);
-        mySerial.println(packet);
+        //mySerial.println(packet);
+        cool = 0;
     }
     delay(100);
 }

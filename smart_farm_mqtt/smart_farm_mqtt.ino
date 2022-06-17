@@ -33,7 +33,9 @@ float soil_a0 = 0;
 
 void setup() {
   Serial.begin(115200);
+  
   SecondSerial.begin(38400, SERIAL_8N1, RXD2, TXD2);
+  //Delay for SecondSerial 
   delay(2000);
 
   setup_wifi();
@@ -47,6 +49,7 @@ void setup() {
 
 void setup_wifi() {
   delay(10);
+  // We start by connecting to a WiFi network
   Serial.println();
   Serial.print("Connecting to ");
   Serial.println(ssid);
@@ -112,7 +115,6 @@ void loop() {
       inString = SecondSerial.readStringUntil('\n');
       //Serial.println(inString);
       // temperature
-      //temperature = (float)random(1, 30);
       int first = inString.indexOf('a');
       int second = inString.indexOf('b');
       String tempStr = inString.substring(first+1, second);
@@ -120,7 +122,6 @@ void loop() {
       //Serial.println(temperature);
 
       // humidity
-      //humidity = (float)random(25, 30);
       first = inString.indexOf('b');
       second = inString.indexOf('c');
       String humidStr = inString.substring(first+1, second);
@@ -146,6 +147,7 @@ void loop() {
       char humString[8];
       char soilString[8];
       char cdsString[8];
+    
       dtostrf(humidity, 1, 2, humString);
       dtostrf(temperature, 1, 2, tempString);
       dtostrf(soil_a0, 1, 2, soilString);
@@ -154,8 +156,14 @@ void loop() {
       u8x8.drawString(0,1,tempString); 
       u8x8.drawString(0,2,soilString);
       u8x8.drawString(0,3,cdsString); 
-      delay(100);
+
+      // Send value to MQTT server 
+      sprintf(msg, "{'uuid':'9807', 'temperature': '%s', 'humidity': '%s'%}", tempString, humString);
+      client.publish("/politek/signal_gather_topic/uuid_9807", msg);
+      client.publish("esp32/humidity", humString);
+      delay(1000);
     } 
+
   }
 
   if(Serial.available()>0){
@@ -169,6 +177,10 @@ void loop() {
         SecondSerial.print("i");
       }else if(inString[0] == 'k'){
         SecondSerial.print("k");
+      }else if(inString[0] == 't'){
+        SecondSerial.print("t");
+      }else if(inString[0] == 's'){
+        SecondSerial.print("s");
       }
     }
   }
