@@ -33,6 +33,7 @@ void setup(){
 
     dht.begin();
     mySerial.begin(38400);
+    delay(5000);
 }
 
 int cool = 0;
@@ -94,10 +95,12 @@ void loop(){
 
         if(isnan(humid) || isnan (temp)){
             Serial.println("Failed to read DHT");
+            humid = 0;
+            temp = 0;
         }
         coolDTH11 = 0;
     }
-   
+    
     int cds_a0 = analogRead(CDS_A0);
     int cds_d0 = digitalRead(CDS_D0);
     int soil_a0 = analogRead(SOIL_A0);
@@ -111,7 +114,7 @@ void loop(){
     if(cool > 10){
         String packet = 'a'+ tempStr + 'b' + humidStr + 'c' + cds_a0Str + 'd' +soil_a0Str +'e' ;
         Serial.println(packet);
-        //mySerial.println(packet);
+        mySerial.println(packet);
         cool = 0;
     }
     delay(100);

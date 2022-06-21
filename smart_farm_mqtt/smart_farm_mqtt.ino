@@ -6,8 +6,8 @@
 #define SDA 15
 #define SCL 14
 
-#define RXD2 5
-#define TXD2 12
+#define RXD2 12 //5
+#define TXD2 5 //12
 
 U8X8_SSD1306_128X64_NONAME_SW_I2C u8x8(/* clock=*/ SCL, /* data=*/ SDA, /* reset=*/ U8X8_PIN_NONE);   // OLEDs without Reset of the Display
 // Replace the next variables with your SSID/Password combination
@@ -109,59 +109,42 @@ void loop() {
   // Arduino protocol 
   // 'a' + temperature + 'b' + humid + 'c' + CDS A0 + 'd' + Soil A0 + 'e'
   String inString = "";
+  String tempStr = "";
+  String humidStr = "";
+  String cds_a0Str = "";
+  String soil_a0Str = "";
   if(SecondSerial.available()>0){
     if(SecondSerial.available()){
 
       inString = SecondSerial.readStringUntil('\n');
-      //Serial.println(inString);
+      Serial.println(inString);
       // temperature
       int first = inString.indexOf('a');
       int second = inString.indexOf('b');
-      String tempStr = inString.substring(first+1, second);
+      tempStr = inString.substring(first+1, second);
       temperature = tempStr.toFloat();
       //Serial.println(temperature);
 
       // humidity
       first = inString.indexOf('b');
       second = inString.indexOf('c');
-      String humidStr = inString.substring(first+1, second);
+      humidStr = inString.substring(first+1, second);
       humidity = humidStr.toFloat();
       //Serial.println(humidity);
 
       // CDS analog 
       first = inString.indexOf('c');
       second = inString.indexOf('d');
-      String cds_a0Str = inString.substring(first+1, second);
+      cds_a0Str = inString.substring(first+1, second);
       cds_a0 = cds_a0Str.toFloat();
       //Serial.println(cds_a0);
 
       // soil analog 
       first = inString.indexOf('d');
       second = inString.indexOf('e');
-      String soil_a0Str = inString.substring(first+1, second);
+      soil_a0Str = inString.substring(first+1, second);
       soil_a0 = soil_a0Str.toFloat();
       //Serial.println(soil_a0);
-      
-      // Convert the value to a char array
-      char tempString[8];
-      char humString[8];
-      char soilString[8];
-      char cdsString[8];
-    
-      dtostrf(humidity, 1, 2, humString);
-      dtostrf(temperature, 1, 2, tempString);
-      dtostrf(soil_a0, 1, 2, soilString);
-      dtostrf(cds_a0, 1, 2, cdsString);
-      u8x8.drawString(0,0,humString);
-      u8x8.drawString(0,1,tempString); 
-      u8x8.drawString(0,2,soilString);
-      u8x8.drawString(0,3,cdsString); 
-
-      // Send value to MQTT server 
-      sprintf(msg, "{'uuid':'9807', 'temperature': '%s', 'humidity': '%s'%}", tempString, humString);
-      client.publish("/politek/signal_gather_topic/uuid_9807", msg);
-      client.publish("esp32/humidity", humString);
-      delay(1000);
     } 
 
   }
@@ -184,5 +167,28 @@ void loop() {
       }
     }
   }
+
+  // Send MQTT data 
+  // Send value to MQTT server 
+  cool++;
+  if(cool > 10 ){    
+    char tempString[8];
+    char humString[8];
+    char soilString[8];
+    char cdsString[8];
+    dtostrf(humidity, 1, 2, humString);
+    dtostrf(temperature, 1, 2, tempString);
+    dtostrf(soil_a0, 1, 2, soilString);
+    dtostrf(cds_a0, 1, 2, cdsString);
+    u8x8.drawString(0,0,humString);
+    u8x8.drawString(0,1,tempString); 
+    u8x8.drawString(0,2,soilString);
+    u8x8.drawString(0,3,cdsString); 
+    sprintf(msg, "{'uuid':'9807', 'temperature': '%s', 'humidity': '%s'%}", tempString, humString);
+    client.publish("/politek/signal_gather_topic/uuid_9807", msg);
+    //client.publish("esp32/humidity", humidStr);
+    // Convert the value to a char array
+    cool = 0;
+  }    
   delay(100);
 }
