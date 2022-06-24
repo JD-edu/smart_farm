@@ -14,7 +14,7 @@
 const byte rxPin = 3;
 const byte txPin = 7;
 
-SoftwareSerial mySerial =  SoftwareSerial(rxPin, txPin);
+//SoftwareSerial mySerial =  SoftwareSerial(rxPin, txPin);
 
 DHT dht(DHTPIN, DHTTYPE);
 
@@ -32,7 +32,7 @@ void setup(){
     pinMode(LED_ON, OUTPUT);
 
     dht.begin();
-    mySerial.begin(38400);
+    //mySerial.begin(38400);
     delay(5000);
 }
 
@@ -41,7 +41,7 @@ int coolDTH11 = 0;
 float humid;
 float temp;
 void loop(){
-    if(mySerial.available()>0){
+    /*if(mySerial.available()>0){
         char c = mySerial.read();
         Serial.println(c);
         if (c == 'c'){
@@ -63,7 +63,7 @@ void loop(){
             Serial.println("LED OFF");
             digitalWrite(LED_ON, LOW);
         }
-    }
+    }*/
 
     if(Serial.available()>0){
         char c = Serial.read();
@@ -114,7 +114,7 @@ void loop(){
     if(cool > 10){
         String packet = 'a'+ tempStr + 'b' + humidStr + 'c' + cds_a0Str + 'd' +soil_a0Str +'e' ;
         Serial.println(packet);
-        mySerial.println(packet);
+        //mySerial.println(packet);
         cool = 0;
     }
     delay(100);
