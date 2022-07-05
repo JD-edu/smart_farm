@@ -6,8 +6,8 @@
 #define SDA 15
 #define SCL 14
 
-#define RXD2 12 //5
-#define TXD2 5 //12
+#define RXD2 5 //5
+#define TXD2 12 //12
 
 U8X8_SSD1306_128X64_NONAME_SW_I2C u8x8(/* clock=*/ SCL, /* data=*/ SDA, /* reset=*/ U8X8_PIN_NONE);   // OLEDs without Reset of the Display
 // Replace the next variables with your SSID/Password combination
@@ -16,7 +16,7 @@ const char* password = "GBSA0001";
 
 // Add your MQTT Broker IP address, example:
 //const char* mqtt_server = "192.168.1.144";
-const char* mqtt_server = "211.239.124.237";
+const char* mqtt_server = "3.34.187.90";
 
 WiFiClient espClient;
 PubSubClient client(espClient);
@@ -39,7 +39,7 @@ void setup() {
   delay(2000);
 
   setup_wifi();
-  client.setServer(mqtt_server, 11807);
+  client.setServer(mqtt_server, 1883);
   client.setCallback(callback);
 
   u8x8.begin();
