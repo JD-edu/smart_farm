@@ -1,5 +1,6 @@
 #include "DHT.h"
 #include<SoftwareSerial.h>
+#include <U8x8lib.h>
 
 #define DHTPIN      2
 #define CDS_A0      A0
@@ -7,14 +8,19 @@
 #define DHTTYPE     DHT11
 #define SOIL_A0     A1
 #define SOIL_D0     6
-#define PAN_OUT     9
+#define FAN_OUT     9
 #define PUMP_OUT    5
 #define LED_ON      8
+
+#define SCREEN_WIDTH 128 // OLED display width, in pixels
+#define SCREEN_HEIGHT 64 // OLED display height, in pixels
 
 const byte rxPin = 3;
 const byte txPin = 7;
 
 SoftwareSerial mySerial =  SoftwareSerial(rxPin, txPin);
+
+U8X8_SSD1306_128X64_NONAME_HW_I2C u8x8(/* reset=*/ U8X8_PIN_NONE); 
 
 DHT dht(DHTPIN, DHTTYPE);
 
@@ -22,18 +28,32 @@ void setup(){
     Serial.begin(115200);
     Serial.println("JD Edu Smart Farm Start ... ");
 
+   
     pinMode(rxPin, INPUT);
     pinMode(txPin, OUTPUT);
 
     pinMode(CDS_A0, INPUT);
     pinMode(CDS_D0, INPUT);
-    pinMode(PAN_OUT, OUTPUT);
+    pinMode(FAN_OUT, OUTPUT);
     pinMode(PUMP_OUT, OUTPUT);
     pinMode(LED_ON, OUTPUT);
 
     dht.begin();
     mySerial.begin(38400);
-    delay(5000);
+    delay(3000);
+
+      u8x8.begin();
+  u8x8.setPowerSave(0);
+    
+}
+
+int availableMemory() {
+    // Use 1024 with ATmega168
+    int size = 2048;
+    byte *buf;
+    while ((buf = (byte *) malloc(--size)) == NULL);
+        free(buf);
+    return size;
 }
 
 int cool = 0;
@@ -46,10 +66,10 @@ void loop(){
         Serial.println(c);
         if (c == 'c'){
             Serial.println("FAN ON");
-            digitalWrite(PAN_OUT, HIGH);
+            digitalWrite(FAN_OUT, HIGH);
         }else if(c == 'f'){
             Serial.println("FAN OFF");
-            digitalWrite(PAN_OUT, LOW);
+            digitalWrite(FAN_OUT, LOW);
         }else if(c == 'i'){
             Serial.println("PUMP ON");
             digitalWrite(PUMP_OUT, HIGH);
@@ -69,10 +89,10 @@ void loop(){
         char c = Serial.read();
         if (c == 'c'){
             Serial.println("FAN ON");
-            digitalWrite(PAN_OUT, HIGH);
+            digitalWrite(FAN_OUT, HIGH);
         }else if(c == 'f'){
             Serial.println("FAN OFF");
-            digitalWrite(PAN_OUT, LOW);
+            digitalWrite(FAN_OUT, LOW);
         }else if(c == 'i'){
             Serial.println("PUMP ON");
             digitalWrite(PUMP_OUT, HIGH);
@@ -112,10 +132,19 @@ void loop(){
     String soil_a0Str = String(soil_a0);
     cool++;
     if(cool > 10){
-        String packet = 'a'+ tempStr + 'b' + humidStr + 'c' + cds_a0Str + 'd' +soil_a0Str +'e' ;
+        String packet = 'a'+ tempStr + 'b' + humidStr + 'c' + cds_a0Str + 'd' +soil_a0Str +'e';
         Serial.println(packet);
-        mySerial.println(packet);
+        Serial.println(availableMemory());
+        //mySerial.println(packet);
         cool = 0;
     }
+
+    
+     
+    u8x8.setFont(u8x8_font_chroma48medium8_r);
+    u8x8.drawString(0,0,tempStr.c_str());
+    u8x8.drawString(0,1,humidStr.c_str());
+    u8x8.drawString(0,2,cds_a0Str.c_str());
+    u8x8.drawString(0,3,soil_a0Str.c_str());
     delay(100);
 }
