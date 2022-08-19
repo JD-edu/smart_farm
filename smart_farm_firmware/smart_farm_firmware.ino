@@ -134,7 +134,6 @@ void loop(){
     if(cool > 10){
         String packet = 'a'+ tempStr + 'b' + humidStr + 'c' + cds_a0Str + 'd' +soil_a0Str +'e';
         Serial.println(packet);
-        Serial.println(availableMemory());
         //mySerial.println(packet);
         cool = 0;
     }
