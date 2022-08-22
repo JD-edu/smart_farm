@@ -10,6 +10,7 @@
 #include <Wire.h>
 #include "select_pins.h"
 #include "esp_camera.h"
+#include "base64.h"
 
 #define SDA 15
 #define SCL 14
@@ -42,7 +43,7 @@ const char* mqtt_server = "3.34.187.90";
 WiFiClient espClient;
 PubSubClient client(espClient);
 long lastMsg = 0;
-char msg[100];
+char msg[4500];
 int value = 0;
 
 HardwareSerial SecondSerial(2);
@@ -236,17 +237,6 @@ void setup() {
   
 }
 
-const int MAX_PAYLOAD = 60000;
-void sendMQTT(const uint8_t * buf, uint32_t len){
-  Serial.println("Sending picture...");
-  if(len>MAX_PAYLOAD){
-    Serial.print("Picture too large, increase the MAX_PAYLOAD value");
-  }else{
-    Serial.print("Picture sent ? : ");
-    Serial.println(client.publish("/politek/signal_gather_topic/uuid_9807", buf, len, false));
-  } 
-}
-
 
 int cool = 0;
 
@@ -262,9 +252,11 @@ void loop() {
       Serial.println("Camera capture failed");
       return;
     }
+    String picture_encoded = base64::encode(fb->buf,fb->len);
     Serial.println(fb->len);
+    
     Serial.println(" Picture taken");
-    sendMQTT(fb->buf, fb->len);
+    
     esp_camera_fb_return(fb); // must be used to free the memory allocated by esp_camera_fb_get().
     
     delay(2000);
@@ -345,7 +337,8 @@ void loop() {
     dtostrf(temperature, 1, 2, tempString);
     dtostrf(soil_a0, 1, 2, soilString);
     dtostrf(cds_a0, 1, 2, cdsString);
-    sprintf(msg, "{'uuid':'9807', 'temperature': '%s', 'humidity': '%s'%}", tempString, humString);
+    //sprintf(msg, "{'uuid':'9807', 'temperature': '%s', 'humidity': '%s'%}", tempString, humString);
+    sprintf(msg, "{'uuid':'9807', 'image': '%s'}", picture_encoded);
     client.publish("/politek/signal_gather_topic/uuid_9807", msg);
     // Convert the value to a char array
     cool = 0;
