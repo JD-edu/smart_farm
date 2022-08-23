@@ -256,6 +256,8 @@ void loop() {
     Serial.println(fb->len);
     
     Serial.println(" Picture taken");
+
+    Serial.println(picture_encoded);
     
     esp_camera_fb_return(fb); // must be used to free the memory allocated by esp_camera_fb_get().
     
